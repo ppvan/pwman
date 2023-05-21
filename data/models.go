@@ -1,6 +1,8 @@
 package data
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Password struct {
 	ID       int
@@ -24,7 +26,25 @@ type PasswordModel struct {
 }
 
 func (model *PasswordModel) List() ([]Password, error) {
-	return nil, nil
+	rows, err := model.Connection.Query("SELECT website, username, password FROM main.passwords")
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var passwords []Password
+
+	for rows.Next() {
+		var password Password
+		err := rows.Scan(&password.Website, &password.Username, &password.Password)
+		if err != nil {
+			return nil, err
+		}
+		passwords = append(passwords, password)
+	}
+
+	return passwords, nil
 }
 
 func (model *PasswordModel) Add(password Password) error {

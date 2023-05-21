@@ -2,39 +2,36 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/ppvan/guardian/app"
+	"github.com/ppvan/guardian/data"
 )
 
 func main() {
 
-	app := &app.Application{}
-
 	flag.Parse()
-	args := flag.Args()
+	dsn := flag.String("db", "guardian.db", "Database file")
 
-	if len(args) < 1 {
-		log.Fatal("You must specify a command")
+	db, err := data.OpenDB(*dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	model := &data.PasswordModel{
+		Connection: *db,
 	}
 
-	switch args[0] {
-	case "help":
-		app.Help()
-	case "reset":
-		app.ResetMasterPassword()
-	case "version":
-		fmt.Println("Version")
-	case "list":
-		app.ListPassword()
-	case "add":
-		app.AddPassword()
-	case "delete":
-		app.DeletePassword()
-	case "update":
-		app.UpdatePassword()
-	default:
-		log.Fatalf("Unknown command %s", args[0])
+	app := &app.Application{
+		PasswordModel: model,
+		Args:          flag.Args(),
 	}
+
+	err = app.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
