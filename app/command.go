@@ -1,10 +1,21 @@
 package app
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Command string
 
-const UnKnownCommandError = "unknown command `%s`"
+var ErrNoCommand = errors.New("no command specified")
+
+type ErrUnKnownCommand struct {
+	Command string
+}
+
+func (e *ErrUnKnownCommand) Error() string {
+	return fmt.Sprintf("unknown command `%s`", e.Command)
+}
 
 const (
 	Help    Command = "help"
@@ -33,5 +44,5 @@ func parseCommand(str string) (Command, error) {
 		}
 	}
 
-	return "", fmt.Errorf(UnKnownCommandError, str)
+	return "", &ErrUnKnownCommand{Command: str}
 }

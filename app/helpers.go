@@ -8,7 +8,7 @@ func (app *Application) excuteCommand(command Command) error {
 
 	switch command {
 	case Help:
-		app.Help()
+		return app.Help()
 	case Reset:
 		app.ResetMasterPassword()
 	case Version:
@@ -25,5 +25,6 @@ func (app *Application) excuteCommand(command Command) error {
 		// This should never happen
 		panic("unknown command")
 	}
+
 	return nil
 }
